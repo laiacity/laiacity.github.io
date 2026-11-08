@@ -500,8 +500,10 @@
     var m = /^#u-(.+)$/.exec(location.hash || '');
     if (!m || !model) return;
     if (!openHouse(safeDecode(m[1]), { scroll: scroll, url: false })) {
+      selected = null; // otherwise the previously open house would stay on screen
       houseNote = 'No house found for that link yet.';
       renderHouse();
+      markSelected();
     }
   }
 
@@ -882,6 +884,12 @@
   }
 
   function init() {
+    setupTheme();
+    // privacy.html and legal.html load this script too: they only need the theme toggle.
+    if (!$('find-form')) return;
+    // Reduced motion never fades in the second hero photo, so drop it instead of leaving a hidden image in the page.
+    var alt = document.querySelector('.room-photo-alt');
+    if (alt && reduced) alt.parentNode.removeChild(alt);
     $('find-form').addEventListener('submit', function (e) {
       e.preventDefault();
       var first = $('results').querySelector('.result-btn');
@@ -901,7 +909,6 @@
     $('load-retry').addEventListener('click', load);
     window.addEventListener('hashchange', function () { fromHash(true); });
     setupCopy();
-    setupTheme();
     load();
   }
 
