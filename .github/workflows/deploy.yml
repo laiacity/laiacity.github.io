@@ -1,0 +1,66 @@
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout site
+        uses: actions/checkout@v4
+
+      - name: Checkout private town data
+        uses: actions/checkout@v4
+        with:
+          repository: laiacity/town-data
+          token: ${{ secrets.TOWN_DATA_TOKEN }}
+          path: _data
+          persist-credentials: false
+
+      - name: Stage and validate town.json
+        run: |
+          if [ ! -f _data/town.json ]; then
+            echo "::error::_data/town.json not found in laiacity/town-data"
+            exit 1
+          fi
+          mkdir -p data
+          cp _data/town.json data/town.json
+          python3 -c "import json; json.load(open('data/town.json'))" || { echo "::error::data/town.json is not valid JSON"; exit 1; }
+
+      - name: Assemble public site
+        run: |
+          rm -rf _site
+          mkdir -p _site/data
+          cp -r index.html privacy.html legal.html app.js style.css img .nojekyll _site/
+          cp data/town.json _site/data/town.json
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

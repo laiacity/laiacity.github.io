@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Let's build a city from 0 · Town tracker</title>
+<meta name="description" content="Fan-made tracker for Let's build a city from 0: the houses, proposals, votes and elections of a miniature town built by TikTok comments.">
+<meta name="theme-color" content="#2c7a36">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Let's build a city from 0">
+<meta property="og:description" content="Your comments build a miniature town. Find your house, follow the proposals and the election.">
+<link rel="icon" type="image/png" href="img/laia-favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;800;900&display=swap">
+<script>
+  // Apply the stored theme before first paint (no flash). No stored choice: the OS setting applies.
+  try { var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="hero" id="hero">
+  <div class="hero-shell wrap">
+    <figure class="photo-card laia-hero hero-room">
+      <div class="photo-stack">
+        <img class="room-photo" src="img/laia-cheer.jpg" width="720" height="834" alt="Laïa, the mayor, cheering on the town hall steps" fetchpriority="high">
+        <img class="room-photo room-photo-alt" src="img/laia-wave.jpg" width="720" height="694" alt="" aria-hidden="true">
+      </div>
+      <figcaption>Laïa, mayor of the town</figcaption>
+    </figure>
+
+    <div class="hero-card">
+      <div class="hero-bar">
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark theme" hidden>
+          <svg class="ic ic-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <svg class="ic ic-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+        </button>
+      </div>
+      <div class="hero-stripe" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <h1 class="title">Let's build a city from 0</h1>
+      <p class="lede">A live tracker for the TikTok town. Find your house, follow the proposals and read what the comments change.</p>
+
+      <form class="finder" id="find-form" role="search">
+        <label class="finder-label" for="find">Find your house</label>
+        <div class="finder-main">
+          <div class="finder-row">
+            <span class="at" aria-hidden="true">@</span>
+            <input id="find" type="search" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="your.handle">
+          </div>
+          <button type="submit" class="btn primary">Search the town</button>
+        </div>
+        <ul class="results" id="results" hidden></ul>
+      </form>
+
+      <div class="stats">
+        <div class="pop">
+          <span class="num" id="population">—</span>
+          <span class="stat-caption">Residents, equal to followers</span>
+        </div>
+        <div class="spark-card">
+          <div class="spark" id="spark"></div>
+          <span class="stat-caption">Follower history</span>
+        </div>
+        <div class="ep-box">
+          <span class="num" id="current-ep">—</span>
+          <span class="stat-caption">Current episode</span>
+        </div>
+      </div>
+
+      <p class="updated" id="updated" role="status" aria-live="polite" aria-atomic="true" aria-busy="true">Loading the town…</p>
+      <p class="banner" id="banner" role="status" hidden>Preview: sample data, the town opens with episode 2.</p>
+      <div class="load-error" id="load-error" role="alert" hidden>
+        <span>The town data could not be loaded.</span>
+        <button type="button" class="btn small" id="load-retry">Try again</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="sitenav" aria-label="Sections">
+  <div class="wrap navbar">
+    <ul class="navlist">
+      <li><a href="#house">Your house</a></li>
+      <li><a href="#proposals">Proposals</a></li>
+      <li><a href="#houses">Houses</a></li>
+      <li id="nav-deputy" hidden><a href="#deputy">Deputy mayor</a></li>
+      <li id="nav-hall" hidden><a href="#hall">Hall of fame</a></li>
+      <li><a href="#how">How to play</a></li>
+      <li><a href="#episodes">Episodes</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="wrap" id="main">
+
+  <section class="block" id="house" aria-labelledby="house-title">
+    <h2 class="sec-title" id="house-title">Your house</h2>
+    <p class="muted" id="house-empty">Search your @handle above, or tap a house below, to see its history.</p>
+    <article class="house" id="house-card" hidden></article>
+  </section>
+
+  <section class="block" id="proposals" aria-labelledby="proposals-title">
+    <h2 class="sec-title" id="proposals-title">This week's proposals</h2>
+    <div class="ep-switch">
+      <label for="ep-select">Episode</label>
+      <select id="ep-select"></select>
+    </div>
+    <div id="proposals-root"></div>
+  </section>
+
+  <section class="block" id="houses" aria-labelledby="houses-title">
+    <h2 class="sec-title" id="houses-title">Houses</h2>
+    <div class="toolbar">
+      <label class="ctl">
+        <span>Show</span>
+        <select id="house-filter">
+          <option value="all">All houses</option>
+          <option value="custom">Custom</option>
+          <option value="basic">Basic</option>
+          <option value="destroyed_basic">Destroyed, back to basic</option>
+        </select>
+      </label>
+      <label class="ctl">
+        <span>Sort</span>
+        <select id="house-sort">
+          <option value="likes">Most likes</option>
+          <option value="newest">Newest</option>
+          <option value="az">A–Z</option>
+        </select>
+      </label>
+      <p class="count" id="house-count" aria-live="polite"></p>
+    </div>
+    <div class="grid" id="house-grid"></div>
+    <div class="more"><button type="button" class="btn" id="house-more" hidden>Show more houses</button></div>
+  </section>
+
+  <section class="block" id="deputy" aria-labelledby="deputy-title" hidden>
+    <h2 class="sec-title" id="deputy-title">Deputy mayor</h2>
+    <div class="deputy-split">
+      <div>
+        <ul class="deputy-rules">
+          <li>Laïa is the mayor and stays mayor. The election picks her <strong>deputy mayor</strong>. It unlocks at 100 followers.</li>
+          <li>To run, comment <strong>I RUN</strong> under the latest episode. The most-liked candidacy wins.</li>
+          <li>The deputy serves <strong>2 episodes</strong>.</li>
+          <li>The deputy <strong>tips the balance</strong> in every vote during their term.</li>
+          <li>The deputy can pass <strong>one law</strong> of their choice, which lasts their whole term.</li>
+          <li>If Laïa judges that law abusive, the law's first episode opens a <strong>keep-or-repeal vote</strong>.</li>
+        </ul>
+        <p class="muted">Candidates are residents who commented <strong>I RUN</strong>. Sorted by likes.</p>
+      </div>
+      <figure class="photo-card laia-deputy">
+        <img src="img/laia-wave.jpg" width="720" height="694" loading="lazy" alt="Laïa, the mayor, waving from the town hall steps">
+        <figcaption>Laïa picks a deputy</figcaption>
+      </figure>
+    </div>
+    <p class="count" id="candidate-count" aria-live="polite"></p>
+    <div class="grid" id="candidate-grid"></div>
+  </section>
+
+  <section class="block" id="hall" aria-labelledby="hall-title" hidden>
+    <h2 class="sec-title" id="hall-title">Hall of fame</h2>
+    <p class="muted">Deputy mayors and custom avatar winners, in the order of the episode they were chosen.</p>
+    <ol class="hall-list" id="hall-list"></ol>
+  </section>
+
+  <section class="block" id="how" aria-labelledby="how-title">
+    <h2 class="sec-title" id="how-title">How to play</h2>
+    <p class="muted">Comment one of these formats under the episode video. Copy an example, change the words, post it.</p>
+
+    <ul class="formats">
+      <li class="format">
+        <h3><span class="tag-type t-IDEA">Idea</span> Build something</h3>
+        <p>The most-liked IDEA gets built.</p>
+        <div class="example"><code id="ex-idea">IDEA: a giant duck fountain</code><button type="button" class="btn small copy" data-copy-target="ex-idea">Copy</button></div>
+      </li>
+      <li class="format">
+        <h3><span class="tag-type t-LAW">Law</span> Make a rule</h3>
+        <p>The most-liked LAW applies.</p>
+        <div class="example"><code id="ex-law">LAW: hats are mandatory</code><button type="button" class="btn small copy" data-copy-target="ex-law">Copy</button></div>
+      </li>
+      <li class="format">
+        <h3><span class="tag-type t-DESTROY">Destroy</span> Demolish a target</h3>
+        <p>The most-liked target is demolished, houses included. Put the @ of the target after the colon.</p>
+        <div class="example"><code id="ex-destroy">DESTROY: @handle</code><button type="button" class="btn small copy" data-copy-target="ex-destroy">Copy</button></div>
+      </li>
+      <li class="format">
+        <h3><span class="tag-type t-HOUSE">House</span> Customise your house</h3>
+        <p>Your last HOUSE request is the one shown on your house card.</p>
+        <div class="example"><code id="ex-house">HOUSE: red roof, pool, garden gnome</code><button type="button" class="btn small copy" data-copy-target="ex-house">Copy</button></div>
+      </li>
+      <li class="format" id="how-run" hidden>
+        <h3><span class="tag-type t-RUN">I run</span> Run for deputy mayor</h3>
+        <p>Comment it to become a candidate.</p>
+        <div class="example"><code id="ex-run">I RUN</code><button type="button" class="btn small copy" data-copy-target="ex-run">Copy</button></div>
+      </li>
+      <li class="format" id="how-deputy" hidden>
+        <h3><span class="tag-type t-RUN">Deputy</span> Serve 2 episodes</h3>
+        <p>The most-liked I RUN becomes deputy mayor. The deputy tips every vote and passes one law for the term. Laïa can call a keep-or-repeal vote on that law.</p>
+      </li>
+    </ul>
+    <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
+
+    <div class="rule">
+      <h3>The ratio veto</h3>
+      <p>If a reply under a proposal has more likes than the proposal itself, the proposal is cancelled. Owners protect their house the same way. A destroyed house goes back to a basic house that still belongs to the same player.</p>
+      <div class="ratio-demo" aria-hidden="true">
+        <div class="rd-row">
+          <span class="rd-label">Proposal</span>
+          <span class="rd-track"><span class="rd-bar w-812"></span></span>
+          <span class="rd-val">812</span>
+        </div>
+        <div class="rd-row">
+          <span class="rd-label">Top reply</span>
+          <span class="rd-track"><span class="rd-bar is-reply w-1204"></span></span>
+          <span class="rd-val">1,204</span>
+        </div>
+        <p class="rd-verdict">Reply has more likes → <strong>RATIO'D</strong></p>
+      </div>
+    </div>
+
+    <div class="rule milestones" id="milestones" hidden>
+      <h3>Milestones</h3>
+      <ul>
+        <li><strong>100 followers:</strong> the deputy election unlocks.</li>
+        <li><strong>1,000 followers:</strong> each episode's top comment gets a custom avatar in town.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block" id="episodes" aria-labelledby="episodes-title">
+    <h2 class="sec-title" id="episodes-title">Episodes</h2>
+    <ul class="ep-list" id="episode-list"></ul>
+  </section>
+
+  
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>Fan-made tracker, not affiliated with TikTok.</p>
+    <p>Data refreshed daily.</p>
+    <p><a href="privacy.html">Privacy</a> · <a href="legal.html">Legal notice</a></p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
