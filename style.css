@@ -557,6 +557,9 @@ time { color: var(--muted); font-size: var(--step-small); font-weight: 800; }
 .avatar-img.is-big { flex-basis: 72px; width: 72px; height: 72px; }
 .avatar-ph { background: var(--basic-soft); color: var(--muted); }
 .avatar-line { margin: var(--s3) 0 0; }
+.house-photo { width: min(360px, 100%); margin: 0 0 28px; }
+.house-photo img { display: block; width: 100%; height: auto; border-radius: var(--radius); background: var(--grass-soft); }
+.house-photo figcaption { margin-top: 8px; color: var(--muted); font-size: var(--step-small); font-weight: 700; }
 .hall-list { display: grid; gap: 4px; list-style: none; margin: 28px 0 0; padding: 0; }
 @media (min-width: 760px) { .hall-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .hall-item { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 12px; align-items: center; padding: 20px; background: var(--paper); }

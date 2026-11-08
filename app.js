@@ -17,6 +17,7 @@
     custom_avatar: 'Custom avatar'
   };
   var AVATAR_IMG = /^img\/avatars\/[A-Za-z0-9_.-]+\.(png|jpg|webp)$/;
+  var HOUSE_IMG = /^img\/houses\/[A-Za-z0-9_.-]+\.(jpg|png|webp)$/;
   var LAW_LABEL = { in_force: 'In force', vote_pending: 'Vote pending', kept: 'Kept', repealed: 'Repealed' };
   var PAGE = 60;
   var TIKTOK = 'https://www.tiktok.com/';
@@ -98,6 +99,11 @@
   }
 
   // ---------- normalise (tolerates missing / null fields) ----------
+  function photoOf(v) {   // house photo as seen in an episode, or null
+    var o = obj(v), src = text(o.src);
+    return HOUSE_IMG.test(src) && typeof o.ep === 'number' && isFinite(o.ep) ? { src: src, ep: o.ep } : null;
+  }
+
   function normalize(raw) {
     var d = obj(raw);
     var pObj = obj(d.players);
@@ -112,6 +118,7 @@
         lot: typeof p.lot === 'number' || (typeof p.lot === 'string' && p.lot !== '') ? p.lot : null,
         state: own(STATES, state) ? state : 'basic',
         custom: text(house.custom),
+        photo: photoOf(p.house_photo),
         candidate: p.candidate === true,
         comments: num(p.comments),
         likes: num(p.likes),
@@ -365,7 +372,8 @@
       ]),
       h('span', { class: rq.cls }, [rq.text]),
       p.candidate ? h('span', { class: 'tag' }, ['Candidate']) : null,
-      avatarTag(p)
+      avatarTag(p),
+      p.photo ? h('span', { class: 'tag' }, ['In episode ' + p.photo.ep]) : null
     ]);
   }
 
@@ -551,6 +559,19 @@
         }
       }
     }, ['Copy link to this house']);
+
+    if (p.photo) {
+      card.appendChild(h('figure', { class: 'house-photo' }, [
+        h('img', {
+          src: p.photo.src,
+          width: 720,
+          height: 900,
+          loading: 'lazy',
+          alt: '@' + p.handle + "'s house in episode " + p.photo.ep
+        }),
+        h('figcaption', null, ['Seen in episode ' + p.photo.ep])
+      ]));
+    }
 
     card.appendChild(h('div', { class: 'house-head' }, [
       portrait(p, true),
