@@ -88,7 +88,8 @@
       <li><a href="#house">Your house</a></li>
       <li><a href="#proposals">Proposals</a></li>
       <li><a href="#houses">Houses</a></li>
-      <li id="nav-deputy" hidden><a href="#deputy">Deputy mayor</a></li>
+      <li><a href="#deputy">Deputy mayor</a></li>
+      <li><a href="#avatars">Custom avatars</a></li>
       <li id="nav-hall" hidden><a href="#hall">Hall of fame</a></li>
       <li><a href="#how">How to play</a></li>
       <li><a href="#episodes">Episodes</a></li>
@@ -139,7 +140,7 @@
     <div class="more"><button type="button" class="btn" id="house-more" hidden>Show more houses</button></div>
   </section>
 
-  <section class="block" id="deputy" aria-labelledby="deputy-title" hidden>
+  <section class="block" id="deputy" aria-labelledby="deputy-title">
     <h2 class="sec-title" id="deputy-title">Deputy mayor</h2>
     <div class="deputy-split">
       <div>
@@ -158,8 +159,22 @@
         <figcaption>Laïa picks a deputy</figcaption>
       </figure>
     </div>
-    <p class="count" id="candidate-count" aria-live="polite"></p>
-    <div class="grid" id="candidate-grid"></div>
+    <div id="deputy-root"></div>
+    <div id="candidates" hidden>
+      <h3 class="type-head">Candidates</h3>
+      <p class="count" id="candidate-count" aria-live="polite"></p>
+      <div class="grid" id="candidate-grid"></div>
+    </div>
+  </section>
+
+  <section class="block" id="avatars" aria-labelledby="avatars-title">
+    <h2 class="sec-title" id="avatars-title">Custom avatars</h2>
+    <ul class="deputy-rules">
+      <li>Each episode, the <strong>top comment</strong> wins a custom avatar in town. It unlocks at 1,000 followers.</li>
+      <li>The avatar shows on the winner's house card and in the houses grid.</li>
+    </ul>
+    <h3 class="type-head">Winners</h3>
+    <div id="avatar-root"></div>
   </section>
 
   <section class="block" id="hall" aria-labelledby="hall-title" hidden>
@@ -193,12 +208,12 @@
         <p>Your last HOUSE request is the one shown on your house card.</p>
         <div class="example"><code id="ex-house">HOUSE: red roof, pool, garden gnome</code><button type="button" class="btn small copy" data-copy-target="ex-house">Copy</button></div>
       </li>
-      <li class="format" id="how-run" hidden>
+      <li class="format" id="how-run">
         <h3><span class="tag-type t-RUN">I run</span> Run for deputy mayor</h3>
         <p>Comment it to become a candidate.</p>
         <div class="example"><code id="ex-run">I RUN</code><button type="button" class="btn small copy" data-copy-target="ex-run">Copy</button></div>
       </li>
-      <li class="format" id="how-deputy" hidden>
+      <li class="format" id="how-deputy">
         <h3><span class="tag-type t-RUN">Deputy</span> Serve 2 episodes</h3>
         <p>The most-liked I RUN becomes deputy mayor. The deputy tips every vote and passes one law for the term. Laïa can call a keep-or-repeal vote on that law.</p>
       </li>
@@ -223,11 +238,13 @@
       </div>
     </div>
 
-    <div class="rule milestones" id="milestones" hidden>
+    <div class="rule milestones" id="milestones">
       <h3>Milestones</h3>
       <ul>
-        <li><strong>100 followers:</strong> the deputy election unlocks.</li>
+        <li><strong>100 followers:</strong> the deputy mayor is revealed.</li>
         <li><strong>1,000 followers:</strong> each episode's top comment gets a custom avatar in town.</li>
+        <li><strong>5,000 followers:</strong> ???</li>
+        <li><strong>10,000 followers:</strong> ???</li>
       </ul>
     </div>
   </section>

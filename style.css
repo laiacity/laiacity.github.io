@@ -525,6 +525,28 @@ time { color: var(--muted); font-size: var(--step-small); font-weight: 800; }
 .milestones ul { margin: 0; padding-left: 1.25em; font-weight: 700; }
 .milestones li { margin-bottom: 8px; }
 .avatar-img { flex: 0 0 44px; width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: var(--grass-soft); }
+
+/* Deputy and avatar lists */
+.roster { list-style: none; margin: var(--s3) 0 0; padding: 0; display: grid; gap: 12px; }
+@media (min-width: 760px) { .roster { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.roster-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+  padding: var(--s3);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+.roster-item .initial.avatar-ph { flex: 0 0 72px; width: 72px; height: 72px; font-size: 1.75rem; }
+.roster-body { min-width: 0; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.roster-link { color: var(--link); font-weight: 900; overflow-wrap: anywhere; }
+.badge.l-in_force { background: var(--good-soft); color: var(--good); }
+.badge.l-vote_pending { background: var(--sun-soft); color: var(--sun-ink); }
+.badge.l-kept { background: var(--grass-soft); color: var(--link); }
+.badge.l-repealed { background: var(--bad-soft); color: var(--bad); }
+
 .avatar-img.is-big { flex-basis: 72px; width: 72px; height: 72px; }
 .avatar-ph { background: var(--basic-soft); color: var(--muted); }
 .avatar-line { margin: var(--s3) 0 0; }

@@ -17,7 +17,7 @@
     custom_avatar: 'Custom avatar'
   };
   var AVATAR_IMG = /^img\/avatars\/[A-Za-z0-9_.-]+\.(png|jpg|webp)$/;
-  var LAW_LABEL = { in_force: 'In force', vote_pending: 'Keep-or-repeal vote pending', kept: 'Kept', repealed: 'Repealed' };
+  var LAW_LABEL = { in_force: 'In force', vote_pending: 'Vote pending', kept: 'Kept', repealed: 'Repealed' };
   var PAGE = 60;
   var TIKTOK = 'https://www.tiktok.com/';
   var DEFAULT_HOUSE_NOTE = 'Search your @handle above, or tap a house below, to see its history.';
@@ -123,9 +123,6 @@
       ? d.followers
       : (hist.length ? hist[hist.length - 1].count : null);
     var episodes = list(d.episodes);
-    var latestEp = episodes.reduce(function (m, e) {
-      return typeof e.ep === 'number' && isFinite(e.ep) && e.ep > m ? e.ep : m;
-    }, 0);
     var deputies = list(d.deputies).map(function (x) {
       var start = typeof x.ep_start === 'number' && isFinite(x.ep_start) ? x.ep_start : null;
       var end = typeof x.ep_end === 'number' && isFinite(x.ep_end) ? x.ep_end : (start === null ? null : start + 1);
@@ -137,6 +134,7 @@
       return {
         handle: text(a.handle),
         ep: typeof a.ep === 'number' && isFinite(a.ep) ? a.ep : null,
+        request: text(a.request).trim(),
         likes: num(a.likes),
         image: AVATAR_IMG.test(img) ? img : null
       };
@@ -149,7 +147,6 @@
       hist: hist,
       players: players,
       episodes: episodes,
-      latestEp: latestEp,
       deputies: deputies,
       avatars: avatars,
       avatarBy: avatarBy,
@@ -174,11 +171,9 @@
     return nums.length ? Math.max.apply(null, nums) : null;
   }
 
-  // ---------- deputy mayor, custom avatars, hall of fame (from episode 2 on) ----------
-  function deputyOpen() { return !!model && model.latestEp >= 2; }
-
+  // ---------- deputy mayor, custom avatars, hall of fame ----------
   function avatarFor(handle) {
-    if (!model || !deputyOpen()) return null;
+    if (!model) return null;
     var key = norm(handle);
     return own(model.avatarBy, key) ? model.avatarBy[key] : null;
   }
@@ -199,19 +194,6 @@
   function avatarTag(p) {
     var a = avatarFor(p.handle);
     return a ? h('span', { class: 'tag' }, ['Custom avatar, ep ' + a.ep]) : null;
-  }
-
-  // Deputy mayor section, its nav link, the How-to-play cards and the milestones note.
-  function applyGating() {
-    var on = deputyOpen();
-    $('deputy').hidden = !on;
-    $('nav-deputy').hidden = !on;
-    $('how-run').hidden = !on;
-    $('how-deputy').hidden = !on;
-    $('milestones').hidden = !on;
-    var hall = on && (model.deputies.length > 0 || model.avatars.length > 0);
-    $('hall').hidden = !hall;
-    $('nav-hall').hidden = !hall;
   }
 
   function cmpText(a, b) {
@@ -266,7 +248,73 @@
 
   function renderHall() {
     var root = clear($('hall-list'));
+    var any = model.deputies.length > 0 || model.avatars.length > 0;
+    $('hall').hidden = !any;
+    $('nav-hall').hidden = !any;
     hallRows().forEach(function (r, i) { root.appendChild(hallItem(r, i + 1)); });
+  }
+
+  // ---------- deputy and custom avatar lists ----------
+  function personLink(handle) {
+    var p = findPlayer(handle);
+    return p
+      ? h('a', { class: 'roster-link', href: '#u-' + encodeURIComponent(p.handle) }, ['@' + p.handle])
+      : h('span', { class: 'handle' }, ['@' + handle]);
+  }
+
+  function rosterPicture(handle, image) {
+    if (image) return h('img', { class: 'avatar-img is-big', src: image, width: 72, height: 72, loading: 'lazy', alt: handle + "'s custom avatar" });
+    var p = findPlayer(handle);
+    return p ? portrait(p, true) : h('span', { class: 'initial avatar-ph', 'aria-hidden': 'true' }, [handle.charAt(0).toUpperCase()]);
+  }
+
+  function deputyItem(x) {
+    return h('li', { class: 'roster-item' }, [
+      rosterPicture(x.handle, null),
+      h('div', { class: 'roster-body' }, [
+        h('span', { class: 'type t-RUN' }, ['Deputy mayor']),
+        personLink(x.handle),
+        h('p', { class: 'hall-meta' }, ['Episodes ' + x.start + '–' + x.end]),
+        h('p', { class: 'hall-law' }, [x.law ? 'Law: “' + x.law + '”' : 'No law yet']),
+        x.status ? h('span', { class: 'badge l-' + x.status }, [LAW_LABEL[x.status]]) : null
+      ])
+    ]);
+  }
+
+  function avatarItem(a) {
+    return h('li', { class: 'roster-item' }, [
+      rosterPicture(a.handle, a.image),
+      h('div', { class: 'roster-body' }, [
+        h('span', { class: 'type t-HOUSE' }, ['Custom avatar']),
+        personLink(a.handle),
+        h('p', { class: 'hall-meta' }, ['Top comment, episode ' + a.ep + ' · ' + fmt(a.likes) + ' likes']),
+        a.request ? h('p', { class: 'hall-law' }, ['Request: “' + a.request + '”']) : null
+      ])
+    ]);
+  }
+
+  function renderDeputies() {
+    var root = clear($('deputy-root'));
+    if (!model.deputies.length) {
+      root.appendChild(empty('No deputy yet. Comment I RUN under episode 2 — the most-liked candidacy wins in episode 3.'));
+      return;
+    }
+    var list = h('ul', { class: 'roster' });
+    model.deputies.slice().sort(function (a, b) { return b.start - a.start; })
+      .forEach(function (x) { list.appendChild(deputyItem(x)); });
+    root.appendChild(list);
+  }
+
+  function renderAvatars() {
+    var root = clear($('avatar-root'));
+    if (!model.avatars.length) {
+      root.appendChild(empty('First winner: the top comment under episode 2, revealed in episode 3.'));
+      return;
+    }
+    var list = h('ul', { class: 'roster' });
+    model.avatars.slice().sort(function (a, b) { return b.ep - a.ep; })
+      .forEach(function (a) { list.appendChild(avatarItem(a)); });
+    root.appendChild(list);
   }
 
   // ---------- shared renderers ----------
@@ -316,7 +364,7 @@
         fact('Likes', fmt(p.likes))
       ]),
       h('span', { class: rq.cls }, [rq.text]),
-      p.candidate && deputyOpen() ? h('span', { class: 'tag' }, ['Candidate']) : null,
+      p.candidate ? h('span', { class: 'tag' }, ['Candidate']) : null,
       avatarTag(p)
     ]);
   }
@@ -519,10 +567,10 @@
       fact('Likes', fmt(p.likes))
     ]));
 
-    if (p.candidate && deputyOpen()) {
+    if (p.candidate) {
       card.appendChild(h('p', { class: 'house-note' }, [
         h('span', { class: 'tag' }, ['Candidate']),
-        ' Ran for residents’ representative with I RUN.'
+        ' Running for deputy mayor with I RUN.'
       ]));
     }
 
@@ -666,9 +714,9 @@
   function renderElection() {
     var rows = model.players.filter(function (p) { return p.candidate; })
       .sort(function (a, b) { return (b.likes - a.likes) || byHandle(a, b); });
+    $('candidates').hidden = !rows.length;
     $('candidate-count').textContent = rows.length + (rows.length === 1 ? ' candidate' : ' candidates') + ' · sorted by likes';
     var grid = clear($('candidate-grid'));
-    if (!rows.length) grid.appendChild(empty('No candidates yet. To run, comment I RUN under the episode video.'));
     rows.forEach(function (p) { grid.appendChild(playerCard(p)); });
   }
 
@@ -761,12 +809,13 @@
 
   // ---------- render all ----------
   function render() {
-    applyGating();
     renderHero();
     renderEpSwitch();
     renderProposals();
     renderHouses();
     renderElection();
+    renderDeputies();
+    renderAvatars();
     renderHall();
     renderEpisodes();
     renderHouse();
