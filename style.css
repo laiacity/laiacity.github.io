@@ -276,6 +276,7 @@ a { color: var(--link); font-weight: 800; text-underline-offset: .18em; text-dec
 }
 .laia-hero { width: 100%; max-width: none; margin: 0; }
 .laia-deputy { width: 100%; max-width: 420px; justify-self: end; margin: 0; }
+.laia-deputy img { display: block; width: 100%; height: auto; }
 
 .finder {
   position: relative;
@@ -518,7 +519,7 @@ time { color: var(--muted); font-size: var(--step-small); font-weight: 800; }
 .rd-verdict strong { color: var(--bad); }
 
 /* Optional election and hall sections use the same flat sheets. */
-.deputy-split { display: grid; gap: var(--s4); align-items: start; }
+.deputy-split { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); align-items: start; }
 @media (min-width: 880px) { .deputy-split { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); } }
 .deputy-rules { margin: 0 0 var(--s3); padding: 24px 24px 24px 40px; background: var(--paper); color: var(--ink); font-weight: 700; }
 .deputy-rules li { margin-bottom: 8px; }
