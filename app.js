@@ -749,6 +749,7 @@
     ]);
     function loadVideo() {
       if (!VIDEO_ID.test(id)) return;
+      if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'tiktok-load', title: 'Load TikTok video', event: true });
       var iframe = h('iframe', {
         src: 'https://www.tiktok.com/player/v1/' + id + '?music_info=1&description=1',
         title: label + ' on TikTok',
