@@ -166,6 +166,7 @@
       hist: hist,
       players: players,
       episodes: episodes,
+      nights: list(d.nights),
       deputies: deputies,
       avatars: avatars,
       avatarBy: avatarBy,
@@ -873,6 +874,27 @@
     });
   }
 
+  // NIGHT SHIFT spinoff: same cards as episodes, no vote. Section and nav stay hidden without a night.
+  function renderNights() {
+    var root = clear($('night-list'));
+    var nights = model.nights.filter(function (n) { return typeof n.n === 'number' && isFinite(n.n); })
+      .sort(function (a, b) { return b.n - a.n; });
+    $('night-shift').hidden = !nights.length;
+    $('nav-night').hidden = !nights.length;
+    nights.forEach(function (n) {
+      var url = tiktokUrl(n.url);
+      var id = videoId(n);
+      var label = 'Night Shift #' + n.n;
+      root.appendChild(h('li', { class: 'ep-item' }, [
+        h('h3', { class: 'ep-title' }, [label]),
+        id ? embed(id, label) : null,
+        url
+          ? h('a', { class: 'ep-link', href: url, target: '_blank', rel: 'noopener' }, ['Watch on TikTok ↗'])
+          : h('span', { class: 'muted' }, ['Link not available'])
+      ]));
+    });
+  }
+
   // ---------- render all ----------
   function render() {
     renderHero();
@@ -885,6 +907,7 @@
     renderJobs();
     renderHall();
     renderEpisodes();
+    renderNights();
     renderHouse();
     markSelected();
   }
