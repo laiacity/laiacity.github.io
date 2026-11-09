@@ -5,7 +5,8 @@
   // only textContent, createElement and setAttribute are used. No innerHTML anywhere.
 
   var NS = 'http://www.w3.org/2000/svg';
-  var TYPES = ['IDEA', 'LAW', 'DESTROY'];
+  var TYPES = ['IDEA', 'LAW', 'DESTROY', 'NAME', 'JAIL'];
+  var FROM_EP = { NAME: 3, JAIL: 3 };   // types that only exist from this episode: no heading before it
   var STATES = { basic: 'basic', custom: 'custom', destroyed_basic: 'destroyed → back to basic' };
   var EVENTS = {
     joined: 'Joined',
@@ -14,7 +15,8 @@
     house_saved: 'House saved',
     candidate: 'Ran for deputy mayor (I RUN)',
     deputy: 'Deputy mayor',
-    custom_avatar: 'Custom avatar'
+    custom_avatar: 'Custom avatar',
+    job: 'Job'
   };
   var AVATAR_IMG = /^img\/avatars\/[A-Za-z0-9_.-]+\.(png|jpg|webp)$/;
   var HOUSE_IMG = /^img\/houses\/[A-Za-z0-9_.-]+\.(jpg|png|webp)$/;
@@ -104,6 +106,11 @@
     return HOUSE_IMG.test(src) && typeof o.ep === 'number' && isFinite(o.ep) ? { src: src, ep: o.ep } : null;
   }
 
+  function jobOf(v) {   // job hired in an episode, or null
+    var o = obj(v), title = text(o.title).trim();
+    return title && title.length <= 40 && typeof o.ep === 'number' && isFinite(o.ep) ? { title: title, ep: o.ep } : null;
+  }
+
   function normalize(raw) {
     var d = obj(raw);
     var pObj = obj(d.players);
@@ -119,6 +126,7 @@
         state: own(STATES, state) ? state : 'basic',
         custom: text(house.custom),
         photo: photoOf(p.house_photo),
+        job: jobOf(p.job),
         candidate: p.candidate === true,
         comments: num(p.comments),
         likes: num(p.likes),
@@ -201,6 +209,10 @@
   function avatarTag(p) {
     var a = avatarFor(p.handle);
     return a ? h('span', { class: 'tag' }, ['Custom avatar, ep ' + a.ep]) : null;
+  }
+
+  function jobTag(p) {
+    return p.job ? h('span', { class: 'tag' }, ['Job: ' + p.job.title]) : null;
   }
 
   function cmpText(a, b) {
@@ -324,6 +336,29 @@
     root.appendChild(list);
   }
 
+  function jobItem(p) {
+    return h('li', { class: 'roster-item' }, [
+      rosterPicture(p.handle, null),
+      h('div', { class: 'roster-body' }, [
+        h('span', { class: 'tag' }, [p.job.title]),
+        personLink(p.handle),
+        h('p', { class: 'hall-meta' }, ['Since episode ' + p.job.ep])
+      ])
+    ]);
+  }
+
+  function renderJobs() {   // whole section hidden when nobody has a job yet
+    var rows = model.players.filter(function (p) { return p.job; })
+      .sort(function (a, b) { return (b.job.ep - a.job.ep) || byHandle(a, b); });
+    var section = $('jobs');
+    section.hidden = !rows.length;
+    var root = clear($('jobs-root'));
+    if (!rows.length) return;
+    var list = h('ul', { class: 'roster' });
+    rows.forEach(function (p) { list.appendChild(jobItem(p)); });
+    root.appendChild(list);
+  }
+
   // ---------- shared renderers ----------
   function badge(state) {
     var known = own(STATES, state);
@@ -373,6 +408,7 @@
       h('span', { class: rq.cls }, [rq.text]),
       p.candidate ? h('span', { class: 'tag' }, ['Candidate']) : null,
       avatarTag(p),
+      jobTag(p),
       p.photo ? h('span', { class: 'tag' }, ['In episode ' + p.photo.ep]) : null
     ]);
   }
@@ -587,7 +623,8 @@
       fact('Joined', p.joined === null ? '—' : 'EP ' + p.joined),
       fact('Lot', p.lot === null ? 'none' : '#' + p.lot),
       fact('Comments', fmt(p.comments)),
-      fact('Likes', fmt(p.likes))
+      fact('Likes', fmt(p.likes)),
+      p.job ? fact('Job', p.job.title + ' · since EP ' + p.job.ep) : null
     ]));
 
     if (p.candidate) {
@@ -697,6 +734,7 @@
     });
 
     TYPES.forEach(function (t) {
+      if (own(FROM_EP, t) && Number(propEp) < FROM_EP[t]) return;   // no empty NAME/JAIL headings on ep 1-2
       var items = rows.filter(function (p) { return typeOf(p) === t; })
         .sort(function (a, b) { return num(b.likes) - num(a.likes); });
       root.appendChild(h('h3', { class: 'type-head' }, [t + ' · ' + items.length + (items.length === 1 ? ' proposal' : ' proposals')]));
@@ -840,6 +878,7 @@
     renderElection();
     renderDeputies();
     renderAvatars();
+    renderJobs();
     renderHall();
     renderEpisodes();
     renderHouse();

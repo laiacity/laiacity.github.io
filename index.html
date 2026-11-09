@@ -149,7 +149,7 @@
           <li>Laïa is the mayor and stays mayor. The election picks her <strong>deputy mayor</strong>. It unlocks at 100 followers.</li>
           <li>To run, comment <strong>I RUN</strong> under the latest episode. Only I RUN comments count, and the most-liked candidacy wins.</li>
           <li>The deputy serves <strong>2 episodes</strong>.</li>
-          <li>The first deputy mayor also <strong>names the town</strong>.</li>
+          <li>The town name is chosen by a vote: comment <strong>NAME:</strong> with your idea, the most liked wins.</li>
           <li>The deputy <strong>tips the balance</strong> in every vote during their term.</li>
           <li>The deputy can pass <strong>one law</strong> of their choice, which lasts their whole term.</li>
           <li>If Laïa judges that law abusive, the law's first episode opens a <strong>keep-or-repeal vote</strong>.</li>
@@ -179,6 +179,12 @@
     <div id="avatar-root"></div>
   </section>
 
+  <section class="block" id="jobs" aria-labelledby="jobs-title" hidden>
+    <h2 class="sec-title" id="jobs-title">Town jobs</h2>
+    <p class="muted">Residents hired for a job in town, with the episode they were hired in.</p>
+    <div id="jobs-root"></div>
+  </section>
+
   <section class="block" id="hall" aria-labelledby="hall-title" hidden>
     <h2 class="sec-title" id="hall-title">Hall of fame</h2>
     <p class="muted">Deputy mayors and custom avatar winners, in the order of the episode they were chosen.</p>
@@ -201,9 +207,24 @@
         <div class="example"><code id="ex-law">LAW: hats are mandatory</code><button type="button" class="btn small copy" data-copy-target="ex-law" aria-label="Copy the LAW example">Copy</button></div>
       </li>
       <li class="format">
+        <h3><span class="tag-type t-NAME">Name</span> Name the town</h3>
+        <p>The most-liked NAME becomes the town name. The ratio rule applies.</p>
+        <div class="example"><code id="ex-name">NAME: Sunny Hollow</code><button type="button" class="btn small copy" data-copy-target="ex-name" aria-label="Copy the NAME example">Copy</button></div>
+      </li>
+      <li class="format">
         <h3><span class="tag-type t-DESTROY">Destroy</span> Demolish a target</h3>
         <p>The most-liked target is demolished, houses included. Put the @ of the target after the colon.</p>
         <div class="example"><code id="ex-destroy">DESTROY: @handle</code><button type="button" class="btn small copy" data-copy-target="ex-destroy" aria-label="Copy the DESTROY example">Copy</button></div>
+      </li>
+      <li class="format">
+        <h3><span class="tag-type t-JAIL">Jail</span> Lock up a suspect</h3>
+        <p>Town police officer only. Put the @ of the suspect after the word. A reply with more likes frees them.</p>
+        <div class="example"><code id="ex-jail">JAIL @handle</code><button type="button" class="btn small copy" data-copy-target="ex-jail" aria-label="Copy the JAIL example">Copy</button></div>
+      </li>
+      <li class="format">
+        <h3><span class="tag-type t-VOTE">Vote</span> Pick A, B or C</h3>
+        <p>Comment just A, B or C. One vote per player: their most-liked comment counts.</p>
+        <div class="example"><code id="ex-vote">B</code><button type="button" class="btn small copy" data-copy-target="ex-vote" aria-label="Copy the vote example">Copy</button></div>
       </li>
       <li class="format">
         <h3><span class="tag-type t-HOUSE">House</span> Customise your house</h3>
@@ -217,7 +238,7 @@
       </li>
       <li class="format" id="how-deputy">
         <h3><span class="tag-type t-RUN">Deputy</span> Serve 2 episodes</h3>
-        <p>The most-liked I RUN becomes deputy mayor. The deputy tips every vote and passes one law for the term. The first deputy mayor also names the town. Laïa can call a keep-or-repeal vote on that law.</p>
+        <p>The most-liked I RUN becomes deputy mayor. The deputy tips every vote and passes one law for the term. Laïa can call a keep-or-repeal vote on that law.</p>
       </li>
     </ul>
     <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>

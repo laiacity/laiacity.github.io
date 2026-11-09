@@ -491,6 +491,9 @@ time { color: var(--muted); font-size: var(--step-small); font-weight: 800; }
 .t-DESTROY { background: var(--t-destroy); }
 .t-RUN { background: var(--t-run); }
 .t-HOUSE { background: var(--t-house); }
+.t-NAME { background: var(--t-idea); }
+.t-JAIL { background: var(--t-destroy); }
+.t-VOTE { background: var(--t-law); }
 .win, .lead { padding: 4px 10px; background: var(--paper); color: var(--ink); font-size: var(--step-small); font-weight: 900; }
 .win { background: var(--sun); color: var(--on-sun); }
 .likes { margin-left: auto; color: var(--muted); font-size: var(--step-small); font-weight: 900; font-variant-numeric: tabular-nums; }
