@@ -103,7 +103,11 @@
   // ---------- normalise (tolerates missing / null fields) ----------
   function photoOf(v) {   // house photo as seen in an episode, or null
     var o = obj(v), src = text(o.src);
-    return HOUSE_IMG.test(src) && typeof o.ep === 'number' && isFinite(o.ep) ? { src: src, ep: o.ep } : null;
+    return HOUSE_IMG.test(src) && typeof o.ep === 'number' && isFinite(o.ep) ? { src: src, ep: o.ep, series: typeof o.series === 'string' ? o.series : undefined } : null;
+  }
+
+  function photoAt(ph) {   // where a house photo was seen: "episode 2", or "Night Shift #1" for the spinoff
+    return ph.series === 'night' ? 'Night Shift #' + ph.ep : 'episode ' + ph.ep;
   }
 
   function jobOf(v) {   // job hired in an episode, or null
@@ -409,7 +413,7 @@
       p.candidate ? h('span', { class: 'tag' }, ['Candidate']) : null,
       avatarTag(p),
       jobTag(p),
-      p.photo ? h('span', { class: 'tag' }, ['In episode ' + p.photo.ep]) : null
+      p.photo ? h('span', { class: 'tag' }, ['In ' + photoAt(p.photo)]) : null
     ]);
   }
 
@@ -603,9 +607,9 @@
           width: 720,
           height: 900,
           loading: 'lazy',
-          alt: '@' + p.handle + "'s house in episode " + p.photo.ep
+          alt: '@' + p.handle + "'s house in " + photoAt(p.photo)
         }),
-        h('figcaption', null, ['Seen in episode ' + p.photo.ep])
+        h('figcaption', null, ['Seen in ' + photoAt(p.photo)])
       ]));
     }
 
