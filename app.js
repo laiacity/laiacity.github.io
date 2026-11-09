@@ -12,7 +12,7 @@
     house_custom: 'House request',
     house_destroyed: 'House destroyed',
     house_saved: 'House saved',
-    candidate: 'Ran for representative (I RUN)',
+    candidate: 'Ran for deputy mayor (I RUN)',
     deputy: 'Deputy mayor',
     custom_avatar: 'Custom avatar'
   };
@@ -229,7 +229,7 @@
 
   function avatarMeta(a) {
     return [
-      h('p', { class: 'hall-meta' }, ['Top comment, episode ' + a.ep]),
+      h('p', { class: 'hall-meta' }, ['Most-liked comment, episode ' + a.ep]),
       h('p', { class: 'hall-meta' }, [fmt(a.likes) + ' likes'])
     ];
   }
@@ -294,7 +294,7 @@
       h('div', { class: 'roster-body' }, [
         h('span', { class: 'type t-HOUSE' }, ['Custom avatar']),
         personLink(a.handle),
-        h('p', { class: 'hall-meta' }, ['Top comment, episode ' + a.ep + ' · ' + fmt(a.likes) + ' likes']),
+        h('p', { class: 'hall-meta' }, ['Most-liked comment, episode ' + a.ep + ' · ' + fmt(a.likes) + ' likes']),
         a.request ? h('p', { class: 'hall-law' }, ['Request: “' + a.request + '”']) : null
       ])
     ]);
@@ -315,7 +315,7 @@
   function renderAvatars() {
     var root = clear($('avatar-root'));
     if (!model.avatars.length) {
-      root.appendChild(empty('First winner: the top comment under episode 2, revealed in episode 3.'));
+      root.appendChild(empty('First winner: the most-liked comment under episode 2 that is not an I RUN, revealed in episode 3.'));
       return;
     }
     var list = h('ul', { class: 'roster' });
