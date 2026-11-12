@@ -7,7 +7,7 @@
   var NS = 'http://www.w3.org/2000/svg';
   var TYPES = ['IDEA', 'LAW', 'DESTROY', 'NAME', 'JAIL'];
   var FROM_EP = { NAME: 3, JAIL: 3 };   // types that only exist from this episode: no heading before it
-  var STATES = { basic: 'basic', custom: 'custom', destroyed_basic: 'destroyed → back to basic' };
+  var STATES = { basic: 'basic', custom: 'custom', destroyed_basic: 'destroyed → back to basic', meteor: 'destroyed by the meteor' };
   var EVENTS = {
     joined: 'Joined',
     house_custom: 'House request',
@@ -385,6 +385,7 @@
   function requestInfo(p) {
     if (!p.custom) return { cls: 'request is-none', text: 'No HOUSE request yet' };
     if (p.state === 'destroyed_basic') return { cls: 'request is-gone', text: 'Old request: ' + p.custom };
+    if (p.state === 'meteor') return { cls: 'request is-gone', text: p.custom ? 'Before the meteor: ' + p.custom : 'Destroyed by the meteor' };
     return { cls: 'request', text: '“' + p.custom + '”' };
   }
 
@@ -642,7 +643,12 @@
     var customTag = avatarTag(p);
     if (customTag) card.appendChild(h('p', { class: 'avatar-line' }, [customTag]));
     card.appendChild(h('h4', null, ['Their HOUSE request']));
-    if (p.state === 'destroyed_basic') {
+    if (p.state === 'meteor') {
+      card.appendChild(h('p', { class: 'house-note is-bad' }, [
+        'Destroyed by the meteor (Night Shift #4). The lot is still theirs. Comment HOUSE: and your idea to rebuild it.',
+        p.custom ? ' Before the meteor: “' + p.custom + '”' : ''
+      ]));
+    } else if (p.state === 'destroyed_basic') {
       card.appendChild(h('p', { class: 'house-note is-bad' }, [
         'Destroyed. Back to a basic house, still theirs.',
         p.custom ? ' Old request: “' + p.custom + '”' : ''

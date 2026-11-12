@@ -448,6 +448,7 @@ select { min-height: 44px; min-width: 0; max-width: 100%; padding: 8px 12px; bor
 .b-basic { background: var(--basic-soft); color: var(--basic); }
 .b-custom { background: var(--good-soft); color: var(--good); }
 .b-destroyed_basic { background: var(--bad-soft); color: var(--bad); }
+.b-meteor { background: var(--bad-soft); color: var(--bad); }
 .b-unknown { background: var(--basic-soft); color: var(--muted); }
 
 .house { margin-bottom: var(--s2); padding: clamp(20px, 4vw, 48px); border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); }
