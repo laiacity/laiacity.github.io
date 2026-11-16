@@ -134,6 +134,7 @@
         candidate: p.candidate === true,
         comments: num(p.comments),
         likes: num(p.likes),
+        floors: num(p.floors),
         history: list(p.history)
       };
     });
@@ -409,7 +410,8 @@
         fact('Joined', p.joined === null ? '—' : 'EP ' + p.joined),
         fact('Lot', p.lot === null ? 'none' : '#' + p.lot),
         fact('Comments', fmt(p.comments)),
-        fact('Likes', fmt(p.likes))
+        fact('Likes', fmt(p.likes)),
+        fact('Floors', fmt(p.floors))
       ]),
       h('span', { class: rq.cls }, [rq.text]),
       p.candidate ? h('span', { class: 'tag' }, ['Candidate']) : null,
@@ -630,6 +632,7 @@
       fact('Lot', p.lot === null ? 'none' : '#' + p.lot),
       fact('Comments', fmt(p.comments)),
       fact('Likes', fmt(p.likes)),
+      fact('Floors', fmt(p.floors)),
       p.job ? fact('Job', p.job.title + ' · since EP ' + p.job.ep) : null
     ]));
 
