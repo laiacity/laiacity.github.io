@@ -107,6 +107,7 @@
   }
 
   function photoAt(ph) {   // where a house photo was seen: "episode 2", or "Night Shift #1" for the spinoff
+    if (ph.series === 'newhouses') return 'New houses #' + ph.ep;
     return ph.series === 'night' ? 'Night Shift #' + ph.ep : 'episode ' + ph.ep;
   }
 
